@@ -7,9 +7,26 @@ Renders a Next.js page component that displays detailed information about a char
 @returns {JSX.Element} The rendered page component.
 */
 
+import { getAllCharacters } from '@/lib/characters'
 import { Container } from '@/components'
 import Image from 'next/image'
 import { endpoint } from '@/utils/endpoint'
+
+export const dynamicParams = false
+
+export async function generateStaticParams() {
+  const { characters } = await getAllCharacters()
+  return characters.map(character => ({ slug: character.slug,}))
+}
+
+export async function getCharacterBySlug(slug) {
+  const data = await fetch(`${endpoint}/characters/${slug}`)
+  if (!data.ok) {
+    throw new Error('Failed to fetch data')
+  }
+  return data.json()
+}
+
 
 export default async function Page({ params }) {
   const { character, character_quotes } = await getCharacterBySlug(params.slug)
